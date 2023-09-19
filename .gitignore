@@ -1,0 +1,12 @@
+# ignore all .db files
+*.db
+
+# ignore config
+*.json
+
+# ignore the python environment
+__pycache__
+perseus/
+
+# ignore collected data
+pcaps/
