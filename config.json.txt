@@ -1,0 +1,60 @@
+{
+    "contact": {
+        "contact_name" : "Perseus Admin",
+        "contact_email" : "admin@perseus.com",
+        "contact_phone" : "555-321-1234"
+    },
+
+    "system": {
+        "device_id": "RobsPC",
+        "console_password": "________",
+        "console_timeout": 60,
+        "unlock_username": "perseus_user",
+        "unlock_password": "abcdef12345",
+        "user_activity_log": "/var/log/perseus-activity.log"
+    },    
+
+    "syslog": {
+        "host": "10.20.30.40",
+        "port": 514
+    },
+
+    "sftp": {
+        "host": "40.30.20.10",
+        "port": 22,
+        "remote_dir": "/home/perseus/",
+        "username": "perseus",
+        "password": "perseus-password"
+    },
+
+    "service": {
+
+        "commands": [
+            "netstat -tunlp | grep LISTEN",
+            "iptables -S",
+            "ls -la /home/perseus/.ssh | awk '$9!=\\\".\\\" && $9!=\\\"..\\\"'",
+            "ls /home/perseus",
+            "ls /etc/ssh/ssh_config.d"
+        ],
+
+        "files": [
+            "/etc/passwd",
+            "/etc/shadow",
+            "/etc/group",
+            "/proc/partitions",
+            "/proc/devices",
+            "/etc/ssh/ssh_config"
+        ],
+       
+        "capture_pcaps": true,
+        "pcap_interval": 15, 
+        "maximum_pcaps": 4, 
+        "capture_interfaces": "eth0,eth1,enp0s3",
+
+        "heartbeat_interval": 30,
+        "command_check_interval": 15,
+        "file_check_interval": 15,
+        "process_check_interval": 15,
+        "device_check_interval": 15
+    }
+}
