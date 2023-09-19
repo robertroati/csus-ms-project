@@ -42,6 +42,8 @@
     - Disable all user accounts.
     - Create a new user (specified by config).
     - Disable Ethernet interfaces.
+    - Attempts to terminate all non-approved running processes.
+    - Attempts to disable all non-approved devices.
 
 ## Configuration
 
