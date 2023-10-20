@@ -1,6 +1,6 @@
 from perseus_lib import Library
 from perseus_resource import Table, Service, Config
-from pysqlcipher3 import dbapi2 as sqlite               # sudo apt-get install libsqlcipher-dev, pip install pysqlcipher3
+from pysqlcipher3 import dbapi2 as sqlite               
 import json
 
 

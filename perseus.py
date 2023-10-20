@@ -4,14 +4,13 @@ import os
 import subprocess
 import sys
 import tty
-import keyboard
 import socket
 import json
 import termios
 from perseus_data import Data as Data1
 from perseus_lib import Library
 from datetime import datetime
-from perseus_resource import Table, Service, Config
+from perseus_resource import Table, Service
 
 
 service_socket = '/tmp/perseus'

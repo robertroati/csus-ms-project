@@ -5,14 +5,13 @@
 - [Service](#service)
 - [Configuration](#configuration)
 
-## Required Modules
+
+## Required Python Modules
 - psutil 
 - pcapy-ng
 - paramiko
 - pyudev
 - pysqlcipher3
-- keyboard (for client)
-
 
 
 
