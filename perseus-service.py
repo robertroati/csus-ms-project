@@ -1,4 +1,13 @@
-import paramiko
+import os
+import signal
+import time
+import threading
+import socket
+import datetime
+import pcapy                        
+import json
+import paramiko                     
+
 from enum import Enum
 from perseus_data import Data
 from perseus_syslog import Syslog
@@ -6,34 +15,16 @@ from perseus_lib import Library
 from perseus_resource import Table, Service, Config
 
 
-
-# Create or check file hashes
-# Log any changes
-# Create or check command hashes
-# Log any changes
-# Allow uploads of perseus database to sftp server
-# Lock down system if required. Unlock pw provided by config, sha256 hashed.
-
-import os
-import signal
-import time
-import threading
-import socket
-import datetime
-import pcapy
-import json
-
 config_file = 'config.json'
 server_socket = '/tmp/perseus'
 terminate_program = False
 graceful_shutdown = False
 console_timeout = 180
+logger = None
+sessions = {}
 
 TESTING = True
 
-logger = None
-
-sessions = {}
 
 def console_service():
     global terminate_program
@@ -162,7 +153,10 @@ def console_connection(conn, addr):
             command_approve_all_devices(conn)
 
         elif cmd == str(Service.APPROVE_PROCESS_TOGGLE) and auth == True:
-            command_approve_all_devices(conn)
+            command_approve_process_toggle(conn)
+
+        elif cmd == str(Service.APPROVE_ALL_PROCESSES) and auth == True:
+            command_approve_all_processes(conn)
 
         elif cmd == str(Service.UPLOAD_DB) and auth == True:
             command_upload_db(conn)
@@ -242,7 +236,7 @@ def command_approve_process_toggle(conn):
     d = Data()
     conn.sendall(str(Service.OK).encode())      # Send OK
     dev_id = int(conn.recv(16).strip())         # Get Device ID
-    d.approve_device_toggle(dev_id)                 
+    d.approve_process_toggle(dev_id)                 
     conn.sendall(str(Service.OK).encode())      # Send OK
 
 
@@ -349,7 +343,7 @@ def command_update_monitor(conn):
     conn.sendall(str(Service.OK).encode())      # Send command ok response
     selection_id = int(conn.recv(16).strip())   # Get selection id
     conn.sendall(str(Service.OK).encode())      # Send command ok response
-    set_value = int(conn.recv(16).strip())      # Get new value
+    set_value = conn.recv(64).decode()          # Get new value
 
     result = False
 
@@ -446,7 +440,8 @@ def service_upload_to_sftp(db = False, logs = False):
     password = d.get_config_value(Config.SFTP_PW)
     directory = d.get_config_value(Config.SFTP_DIR)
 
-    dt = datetime.now().strftime("%Y%m%d")
+    dt = datetime.datetime.now().strftime("%Y%m%d")
+    
  
     # Create an SSH client
     ssh_client = paramiko.SSHClient()
@@ -461,14 +456,14 @@ def service_upload_to_sftp(db = False, logs = False):
         sftp = ssh_client.open_sftp()
         for f in file_list:
             src = f
-            dest = dt + "_" + src
- 
-            logger.logprint(f"Uploading [{src}] to [{dest}].")
+            dest = dt + "_" + os.path.basename(src)
+            
+            logger.infoprint(f"Uploading [{src}] to [{dest}].")
             sftp.put(src, dest)
  
         sftp.close()
         ssh_client.close()
-        logger.logprint(f"Upload to [{host}] was successful.")
+        logger.infoprint(f"Upload to [{host}] was successful.")
         return True
     
     except Exception as e:

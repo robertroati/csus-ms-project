@@ -5,6 +5,17 @@
 - [Service](#service)
 - [Configuration](#configuration)
 
+## Required Modules
+- psutil 
+- pcapy-ng
+- paramiko
+- pyudev
+- pysqlcipher3
+- keyboard (for client)
+
+
+
+
 ## Console
 
 - Provides access to service and its functions.

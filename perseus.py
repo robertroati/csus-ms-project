@@ -3,6 +3,7 @@ import hashlib
 import os
 import subprocess
 import sys
+import tty
 import keyboard
 import socket
 import json
@@ -70,11 +71,21 @@ def getStrHash(text):
 def ui_wait_for_keypress(any_key_message=False):
     if any_key_message:
         print("Press any key to continue.")
-    keyboard.read_event()
+
     try:
-        termios.tcflush(sys.stdin, termios.TCIOFLUSH)
-        return True
-    except:
+        if sys.platform == 'win32':
+            msvcrt.getch()
+        else:
+            fd = sys.stdin.fileno()
+            old_settings = termios.tcgetattr(fd)
+            try:
+                tty.setraw(sys.stdin.fileno())
+                sys.stdin.read(1)
+            finally:
+                termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+                return True
+    except KeyboardInterrupt:
+        pass
         return False
 
 
@@ -905,12 +916,12 @@ def service_update_config(id, newvalue):
     try:
         sid = str(id).encode('utf-8')
 
-        sock.sendall(str(Service.UPDATE_MONITOR).encode())      # send command
+        sock.sendall(str(Service.UPDATE_CONFIG).encode())       # send command
         sock.recv(16)                                           # receive ok
         sock.sendall(sid.ljust(16))                             # send id number
         sock.recv(16)                                           # receive ok
         sock.sendall(newvalue.encode())                         # send new value
-        result = sock.recv(64).decode()                         # receive response
+        result = sock.recv(128).decode()                        # receive response
 
         if "OK" in result:
             service_close_sock(sock)
