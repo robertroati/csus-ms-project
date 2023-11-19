@@ -707,10 +707,11 @@ def system_lockdown():
 
 #     Detach non-approved devices
         approved_devices = d.device_approved_list()
-        
+        Library.disconnectUnapprovedDevices(approved_devices)
 
 #     Upload all data
         service_upload_to_sftp(True, True)
+        
 #     Disble network interfaces
         Library.disableEthInterfaces()
 
