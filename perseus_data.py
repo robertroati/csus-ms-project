@@ -523,6 +523,24 @@ class Data:
         conn.close()
         return unapproved
 
+    def process_approved_list(self):
+        conn = sqlite.connect(DB_NAME)
+        conn.execute(f"PRAGMA key = '{KEY}'")
+
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM perseus_processes WHERE approved = 1")
+        
+        # Fetch all the rows returned by the query
+        rows = cur.fetchall()
+        
+        unapproved = []
+        for row in rows:
+            unapproved.append(row[2]) # cmdline
+
+        conn.close()
+        return unapproved
+
+
 
 
     def device_approval_status(self):
@@ -541,6 +559,28 @@ class Data:
 
         conn.close()
         return unapproved
+
+
+
+    def device_approved_list(self):
+        conn = sqlite.connect(DB_NAME)
+        conn.execute(f"PRAGMA key = '{KEY}'")
+
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM perseus_devices WHERE approved = 1")
+        
+        # Fetch all the rows returned by the query
+        rows = cur.fetchall()
+        
+        unapproved = []
+        for row in rows:
+            unapproved.append([row[1],row[2]]) # device_name, device_type
+
+        conn.close()
+        return unapproved
+
+
+
 
 
 

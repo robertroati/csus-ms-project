@@ -118,7 +118,7 @@ class Library:
             if device.subsystem in device_types:
                 # Ignore loop devices
                 if (not device.device_type == 'disk') and (not device.sys_name.startswith('loop')): 
-                    device_list.append([device.sys_name, device.device_type])
+                    device_list.append((device.sys_name, device.device_type))
 
         return device_list
 
@@ -253,6 +253,45 @@ class Library:
                         print(f"An error occurred locking {user}'s account: {e}")
 
         return locked_accounts
+
+
+    @staticmethod 
+    def terminateUnapprovedProcesses(approved_processes):
+        for proc in psutil.process_iter(attrs=['pid', 'name', 'cmdline']):
+            try:
+                # Skip processes with names wrapped in brackets
+                if proc.info['name'].startswith('[') and proc.info['name'].endswith(']'):
+                    continue
+
+                # Check if the process command line is not in the approved list
+                if proc.info['cmdline'] and ' '.join(proc.info['cmdline']) not in approved_processes:
+                    psutil.Process(proc.info['pid']).kill()
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                pass
+
+
+    @staticmethod
+    def disconnectUnapprovedDevices(approved_devices):
+
+        context = pyudev.Context()
+        monitor = pyudev.Monitor.from_netlink(context)
+        monitor.filter_by(subsystem='usb')
+
+        for device in iter(monitor.poll, None):
+            if device.action == "add":
+                if (device.sys_name, device.device_type) not in approved_devices:
+                    print(f"Disabling unapproved device: {device.sys_name}, {device.device_type}")
+                    # Path to the 'authorized' attribute
+                    device_path = os.path.join('/sys', device.sys_path, 'authorized')
+                    try:
+                        with open(device_path, 'w') as f:
+                            f.write('0')
+                        print(f"Device {device.sys_name} has been disconnected.")
+                    except IOError as e:
+                        print(f"Error disconnecting device {device.sys_name}: {e}")
+
+
+
 
 
     @staticmethod

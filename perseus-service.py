@@ -702,13 +702,15 @@ def system_lockdown():
         logger.criticalprint(f"Terminated user sesssions: {terminated_user_sessions}")
 
 #     Kill non-approved processes
+        approved_cmdlines = d.process_approved_list()
+        Library.terminateUnapprovedProcesses(approved_processes=approved_cmdlines)
 
 #     Detach non-approved devices
-
-#     Copy and store data
+        approved_devices = d.device_approved_list()
+        
 
 #     Upload all data
-
+        service_upload_to_sftp(True, True)
 #     Disble network interfaces
         Library.disableEthInterfaces()
 
