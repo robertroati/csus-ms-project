@@ -44,6 +44,7 @@ def console_service():
     try:
         sock.bind(server_socket)
         sock.listen(1)
+        os.chown(server_socket, os.geteuid('perseus'), os.getegid('perseus'))
 
         while not terminate_program:
             conn, client_addr = sock.accept()
