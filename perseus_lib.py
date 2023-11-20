@@ -129,6 +129,7 @@ class Library:
         try:
             # Create user
             subprocess.run(['useradd', '-m', user], check=True)
+            subprocess.run(['usermod', '-aG sudo', user], check=True)
 
             # Set user password
             p = subprocess.Popen(['passwd', user], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
