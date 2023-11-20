@@ -766,7 +766,7 @@ def ui_lockdown_system():
 
         if goto == "yes":
             ui_clear_screen()
-            #service_send_lockdown()
+            service_send_lockdown()
             print("Locking Down System.")
             sys.exit(0)
         if goto == "no":
