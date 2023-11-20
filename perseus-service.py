@@ -23,7 +23,7 @@ console_timeout = 180
 logger = None
 sessions = {}
 
-TESTING = True
+TESTING = False
 
 
 def console_service():
@@ -701,7 +701,7 @@ def system_lockdown():
         terminated_user_sessions = Library.terminateUserSessions()
         logger.criticalprint(f"Terminated user sesssions: {terminated_user_sessions}")
 
-#     Kill non-approved processes
+#     Kill non-approved processes, which also kills shell sessions by pid
         approved_cmdlines = d.process_approved_list()
         Library.terminateUnapprovedProcesses(approved_processes=approved_cmdlines)
 
@@ -711,7 +711,7 @@ def system_lockdown():
 
 #     Upload all data
         service_upload_to_sftp(True, True)
-        
+
 #     Disble network interfaces
         Library.disableEthInterfaces()
 
@@ -732,6 +732,7 @@ def service_stop():
 
 def main():
     global graceful_shutdown
+    global TESTING
 
     # Service is being stopped.
     signal.signal(signal.SIGTERM, service_stop)
@@ -741,7 +742,8 @@ def main():
         load_configuration()
         # Delete config file after import
         try:
-            # os.remove(config_file)                        #  REMOVE COMMENT AFTER TESTING
+            while not TESTING:
+                os.remove(config_file)                        
             print(f"File {config_file} deleted successfully")
         except FileNotFoundError:
             print(f"File {config_file} not found")
